@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 맞춤형 분석 리포트</title>
+    <style>
+        /* --- 공통 변수 (A의 디자인과 통일감 유지) --- */
+        :root {
+            --primary-color: #0052cc;
+            --secondary-color: #deebff;
+            --background-color: #f4f5f7;
+            --text-color: #172b4d;
+            --border-color: #dfe1e6;
+            --white-color: #ffffff;
+            --success-color: #00875a;
+            --error-color: #de350b;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- 로딩 화면 스타일 --- */
+        #loading-section {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .loader {
+            border: 6px solid var(--border-color);
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- 결과 화면 스타일 --- */
+        .section-title {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        .result-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .result-card h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        /* 정답 비교 영역 */
+        .compare-box {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .my-ans { color: var(--error-color); }
+        .correct-ans { color: var(--success-color); }
+
+        /* AI 해설 영역 */
+        .explanation-content p { line-height: 1.6; margin-bottom: 15px; }
+        .explanation-content hr { 
+            border: 0; 
+            border-top: 1px solid var(--border-color); 
+            margin: 20px 0; 
+        }
+
+        /* --- 하단 액션 버튼 --- */
+        .action-buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            border: none;
+        }
+        .primary-btn:hover { background-color: #003e99; }
+        
+        .secondary-btn {
+            background-color: var(--white-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .secondary-btn:hover { background-color: #e9ebf0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. 로딩 화면 (초기 노출) -->
+        <section id="loading-section">
+            <div class="loader"></div>
+            <h2 style="color: var(--primary-color);">AI가 열심히 오답을 분석하고 있어요!</h2>
+            <p style="color: #5e6c84;">잠시만 기다려주세요...</p>
+        </section>
+
+        <!-- 2. 결과 화면 (분석 완료 후 노출) -->
+        <section id="result-section" class="hidden">
+            <h2 class="section-title">📊 AI 맞춤형 분석 리포트</h2>
+            
+            <div class="result-grid">
+                <!-- 비교 영역 -->
+                <div class="result-card compare-card">
+                    <h3>나의 답 vs 정답</h3>
+                    <div class="compare-box">
+                        <div class="my-ans">
+                            <span>내 답:</span> <strong>3번</strong> <!-- 추후 연동 시 데이터 바인딩 -->
+                        </div>
+                        <div class="correct-ans">
+                            <span>정답:</span> <strong>5번</strong> <!-- 추후 연동 시 데이터 바인딩 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI 해설 영역 -->
+                <div class="result-card ai-explanation">
+                    <h3>💡 AI 오답 원인 분석 및 해설</h3>
+                    <div class="explanation-content">
+                        <p><strong>[오답 원인 분석]</strong></p>
+                        <p>작성해주신 풀이를 보면, 두 번째 줄에서 부호를 반대로 적용하는 실수가 있었습니다. 개념은 정확히 이해하고 있으나 단순 계산 실수가 원인입니다.</p>
+                        <hr>
+                        <p><strong>[단계별 풀이 가이드]</strong></p>
+                        <p>1단계: 주어진 방정식을 전개합니다.<br>
+                        2단계: x항을 좌변으로, 상수항을 우변으로 이항합니다.<br>
+                        3단계: 따라서 올바른 정답은 5번입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사용자 편의 기능 버튼 (A의 index.html로 이동) -->
+            <div class="action-buttons">
+                <!-- href 속성을 통해 index.html로 돌아가도록 연동 -->
+                <a href="index.html" class="btn secondary-btn">🔄 오답 다시 풀기</a>
+                <a href="index.html" class="btn primary-btn">📝 새 문제 입력하기</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 화면 로딩 시 페이크 로딩 효과 (2초 후 결과 화면 노출)
+        window.onload = () => {
+            const loadingSection = document.getElementById('loading-section');
+            const resultSection = document.getElementById('result-section');
+
+            // 2초(2000ms) 대기 후 화면 전환
+            setTimeout(() => {
+                loadingSection.classList.add('hidden');
+                resultSection.classList.remove('hidden');
+            }, 2000);
+        };
+    </script>
+</body>
+</html>
