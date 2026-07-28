@@ -360,7 +360,7 @@
         <div class="container">
             <div class="form-container">
                 <h2 class="section-title" style="text-align: center;">오답 분석 입력</h2>
-                <form id="analysis-form">
+                <form id="analysis-form" action="result.html" method="GET">
                     <div class="form-group">
                         <label for="subject">과목 선택</label>
                         <select id="subject" name="subject" class="form-select" required>
@@ -420,6 +420,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 파일 업로드 (드래그 앤 드롭 & 미리보기) 로직 ---
             function setupFileDrop(dropAreaId, fileInputId, previewId) {
                 const dropArea = document.getElementById(dropAreaId);
                 const fileInput = document.getElementById(fileInputId);
@@ -427,6 +428,7 @@
 
                 if (!dropArea || !fileInput || !previewContainer) return;
 
+                // 드래그 이벤트 방지
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropArea.addEventListener(eventName, preventDefaults, false);
                 });
@@ -436,6 +438,7 @@
                     e.stopPropagation();
                 }
 
+                // 드래그 활성화 스타일
                 ['dragenter', 'dragover'].forEach(eventName => {
                     dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
                 });
@@ -444,6 +447,7 @@
                     dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
                 });
 
+                // 파일 드롭 처리
                 dropArea.addEventListener('drop', handleDrop, false);
 
                 function handleDrop(e) {
@@ -478,24 +482,36 @@
             setupFileDrop('problem-image-drop-area', 'problem-image', 'problem-image-preview');
             setupFileDrop('solution-image-drop-area', 'solution-image', 'solution-image-preview');
 
+
+            // --- 폼 제출 로직 ---
             const form = document.getElementById('analysis-form');
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-                for (let [key, value] of formData.entries()) {
-                    if (value instanceof File) {
-                        console.log(`${key}: ${value.name}`);
+                // 필수 입력 항목 유효성 검사
+                const requiredFields = form.querySelectorAll('[required]');
+                for (const field of requiredFields) {
+                    let isValid = true;
+                    if (field.type === 'file') {
+                        isValid = field.files.length > 0;
                     } else {
-                        console.log(`${key}: ${value}`);
+                        isValid = field.value.trim() !== '';
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault(); // 폼 제출을 막습니다.
+                        const label = form.querySelector(`label[for="${field.id}"]`);
+                        const labelText = label ? label.innerText.replace('*', '').trim() : '필수 항목';
+                        alert(`'${labelText}' 항목을 입력해주세요.`);
+                        field.focus();
+                        return; // 검사를 중단합니다.
                     }
                 }
 
-                alert('분석 요청이 접수되었습니다! (개발 중) \n콘솔에서 전송될 데이터를 확인해보세요.');
-
-                const submitBtn = this.querySelector('.submit-btn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = '분석 중...';
+                // 유효성 검사를 통과하면 버튼 상태 변경
+                const submitBtn = form.querySelector('.submit-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '분석 중...';
+                }
             });
         });
     </script>

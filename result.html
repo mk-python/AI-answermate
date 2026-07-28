@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 맞춤형 분석 리포트</title>
     <style>
+        /* --- Google Fonts (Pretendard) --- */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         /* --- 공통 변수 (A의 디자인과 통일감 유지) --- */
         :root {
             --primary-color: #0052cc;
@@ -165,10 +167,10 @@
                     <h3>나의 답 vs 정답</h3>
                     <div class="compare-box">
                         <div class="my-ans">
-                            <span>내 답:</span> <strong>3번</strong> <!-- 추후 연동 시 데이터 바인딩 -->
+                            <span>내 답:</span> <strong id="my-answer-display"></strong>
                         </div>
                         <div class="correct-ans">
-                            <span>정답:</span> <strong>5번</strong> <!-- 추후 연동 시 데이터 바인딩 -->
+                            <span>정답:</span> <strong id="correct-answer-display"></strong>
                         </div>
                     </div>
                 </div>
@@ -198,12 +200,23 @@
     </div>
 
     <script>
-        // 화면 로딩 시 페이크 로딩 효과 (2초 후 결과 화면 노출)
         window.onload = () => {
             const loadingSection = document.getElementById('loading-section');
             const resultSection = document.getElementById('result-section');
 
-            // 2초(2000ms) 대기 후 화면 전환
+            // 1. URL에서 폼 데이터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const myAnswer = urlParams.get('my-answer');
+            const correctAnswer = urlParams.get('correct-answer');
+
+            // 2. 결과 페이지에 데이터 표시
+            const myAnswerDisplay = document.getElementById('my-answer-display');
+            const correctAnswerDisplay = document.getElementById('correct-answer-display');
+
+            myAnswerDisplay.textContent = myAnswer || '정보 없음';
+            correctAnswerDisplay.textContent = correctAnswer || '정보 없음';
+
+            // 3. 페이크 로딩 후 결과 화면 표시
             setTimeout(() => {
                 loadingSection.classList.add('hidden');
                 resultSection.classList.remove('hidden');
