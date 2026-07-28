@@ -200,28 +200,53 @@
     </div>
 
     <script>
-        window.onload = () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const loadingSection = document.getElementById('loading-section');
             const resultSection = document.getElementById('result-section');
 
-            // 1. URL에서 폼 데이터 가져오기
-            const urlParams = new URLSearchParams(window.location.search);
-            const myAnswer = urlParams.get('my-answer');
-            const correctAnswer = urlParams.get('correct-answer');
+            // 1. localStorage에서 저장된 데이터 불러오기
+            const myAnswer = localStorage.getItem('myAnswer');
+            const correctAnswer = localStorage.getItem('correctAnswer');
+            const analysisResult = localStorage.getItem('aiAnalysisResult');
+            const subject = localStorage.getItem('analysisSubject');
 
-            // 2. 결과 페이지에 데이터 표시
+            // 2. HTML 화면 요소에 데이터 매핑 (비교 영역)
             const myAnswerDisplay = document.getElementById('my-answer-display');
             const correctAnswerDisplay = document.getElementById('correct-answer-display');
 
             myAnswerDisplay.textContent = myAnswer || '정보 없음';
             correctAnswerDisplay.textContent = correctAnswer || '정보 없음';
 
-            // 3. 페이크 로딩 후 결과 화면 표시
+            // 3. AI 분석 결과 반영 (HTML 내부의 .explanation-content 영역 대체)
+            const explanationContent = document.querySelector('.explanation-content');
+            
+            if (analysisResult) {
+                // 백틱(`)을 사용하여 줄바꿈(\n)을 유지하고 안전하게 HTML로 변환하여 출력
+                const formattedResult = analysisResult
+                    .replace(/\n/g, '<br>')
+                    .replace(/\[오답 원인 분석\]/g, '<p><strong>[오답 원인 분석]</strong></p>')
+                    .replace(/\[단계별 풀이 가이드\]/g, '<hr><p><strong>[단계별 풀이 가이드]</strong></p>');
+                
+                explanationContent.innerHTML = formattedResult;
+            } else {
+                explanationContent.innerHTML = `
+                    <p><strong>[알림]</strong></p>
+                    <p>저장된 분석 결과가 없거나 API 호출에 실패했습니다. 다시 시도해 주세요.</p>
+                `;
+            }
+
+            // 과목 타이틀 등을 동적으로 꾸미고 싶다면 활용 가능 (선택 사항)
+            if (subject) {
+                const sectionTitle = document.querySelector('.section-title');
+                sectionTitle.textContent = `📊 [${subject.toUpperCase()}] AI 맞춤형 분석 리포트`;
+            }
+
+            // 4. 로딩 애니메이션(2초 지연) 후 결과 화면 보여주기
             setTimeout(() => {
                 loadingSection.classList.add('hidden');
                 resultSection.classList.remove('hidden');
-            }, 2000);
-        };
+            }, 1500);
+        });
     </script>
 </body>
 </html>
