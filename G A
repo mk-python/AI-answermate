@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 오답 mate - 나만의 맞춤형 AI 오답 분석기</title>
+    <style>
+        /* --- Google Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+        /* --- CSS Reset & Global Styles --- */
+        :root {
+            --primary-color: #0052cc;
+            --secondary-color: #f4f5f7;
+            --font-color: #172b4d;
+            --border-color: #dfe1e6;
+            --white-color: #ffffff;
+            --success-color: #00875a;
+            --body-bg: #fafbfc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+            line-height: 1.6;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #5e6c84;
+        }
+
+        /* --- Main Content Sections --- */
+        .section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+        }
+
+        /* --- Features Section --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            text-align: left;
+        }
+
+        .feature-card {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        /* --- How-to Section --- */
+        .how-to-steps {
+            display: flex;
+            justify-content: space-around;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            max-width: 280px;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .step h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        /* --- CTA Button --- */
+        .cta-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            background-color: #003e99;
+        }
+
+        /* --- Analysis Form Section --- */
+        #analysis-form-section {
+            background-color: var(--white-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+            background: var(--white-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group .optional {
+            font-weight: 400;
+            color: #5e6c84;
+            font-size: 0.9em;
+        }
+
+        .form-control, .form-select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* --- File Upload --- */
+        .file-drop-area {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 100%;
+            padding: 30px;
+            border: 2px dashed var(--border-color);
+            border-radius: 4px;
+            background-color: var(--secondary-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            text-align: center;
+        }
+
+        .file-drop-area.dragover {
+            background-color: #e9f2ff;
+            border-color: var(--primary-color);
+        }
+
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-drop-area .file-msg {
+            color: #5e6c84;
+        }
+
+        .file-drop-area .file-btn {
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- Submit Button --- */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background-color: var(--success-color);
+            color: var(--white-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #006644;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 20px 15px;
+            }
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =======================
+         1. 홈 페이지 (Landing Page)
+    ======================== -->
+    <header class="header">
+        <div class="container">
+            <h1>AI 오답 mate</h1>
+            <p>나만의 맞춤형 AI 오답 분석기</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">AI 오답 mate, 무엇이 다른가요?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🚀 빠른 멀티모달 분석</h3>
+                        <p>문제 이미지와 텍스트를 동시에 입력받아, 복합적인 문제 상황을 빠르고 정확하게 분석합니다.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📚 과목별 맞춤 해설</h3>
+                        <p>국어, 영어, 수학 등 과목 특성에 맞는 핵심 개념과 풀이 전략을 제시하여 깊이 있는 학습을 돕습니다.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🔍 단계별 풀이 비교</h3>
+                        <p>나의 풀이 과정과 AI가 제시하는 모범 풀이를 단계별로 비교하며 어떤 부분에서 실수가 있었는지 명확하게 파악할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="background-color: var(--secondary-color);">
+            <div class="container">
+                <h2 class="section-title">3단계로 끝내는 오답 분석</h2>
+                <div class="how-to-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>오답 정보 입력</h3>
+                        <p>틀린 문제, 정답, 나의 답, 풀이 과정을 간단하게 입력하거나 사진으로 업로드하세요.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>AI 분석 요청</h3>
+                        <p>버튼 하나만 누르면 Gemini AI가 즉시 오답 원인과 해결 방안 분석을 시작합니다.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>맞춤 해설 확인</h3>
+                        <p>나를 위한 맞춤형 분석 리포트를 통해 오답을 완벽하게 정복하고 실력을 키워보세요.</p>
+                    </div>
+                </div>
+                <a href="#analysis-form-section" class="cta-button">오답 분석 시작하기</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================
+         2. 오답 분석 입력 폼
+    =========================== -->
+    <section id="analysis-form-section" class="section">
+        <div class="container">
+            <div class="form-container">
+                <h2 class="section-title" style="text-align: center;">오답 분석 입력</h2>
+                <form id="analysis-form">
+                    <div class="form-group">
+                        <label for="subject">과목 선택</label>
+                        <select id="subject" name="subject" class="form-select" required>
+                            <option value="">과목을 선택하세요</option>
+                            <option value="korean">국어</option>
+                            <option value="math">수학</option>
+                            <option value="english">영어</option>
+                            <option value="science">과학</option>
+                            <option value="social">사회</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="problem-image">문제 이미지 업로드</label>
+                        <div class="file-drop-area" id="problem-image-drop-area">
+                            <input type="file" id="problem-image" name="problem-image" accept="image/*" required>
+                            <p class="file-msg">여기에 파일을 드래그하거나 <span class="file-btn">클릭하여 업로드</span></p>
+                        </div>
+                        <div class="image-preview" id="problem-image-preview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="correct-answer">정답</label>
+                        <input type="text" id="correct-answer" name="correct-answer" class="form-control" placeholder="문제의 정답을 입력하세요" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="my-answer">내 답</label>
+                        <input type="text" id="my-answer" name="my-answer" class="form-control" placeholder="내가 제출한 답을 입력하세요" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="my-solution">내 풀이</label>
+                        <textarea id="my-solution" name="my-solution" class="form-control" placeholder="나의 풀이 과정을 자유롭게 작성해주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="solution-image">풀이 이미지 업로드 <span class="optional">(선택 사항)</span></label>
+                        <div class="file-drop-area" id="solution-image-drop-area">
+                            <input type="file" id="solution-image" name="solution-image" accept="image/*">
+                            <p class="file-msg">여기에 파일을 드래그하거나 <span class="file-btn">클릭하여 업로드</span></p>
+                        </div>
+                        <div class="image-preview" id="solution-image-preview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question">질문/궁금한 점 <span class="optional">(선택 사항)</span></label>
+                        <textarea id="question" name="question" class="form-control" placeholder="AI에게 특별히 물어보고 싶은 점이 있다면 작성해주세요. (예: 다른 풀이 방법은 없나요?)"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">AI 오답 분석 시작 🚀</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>    document.addEventListener('DOMContentLoaded', () => {
+        // --- 파일 업로드 (드래그 앤 드롭 & 미리보기) 로직 ---
+        function setupFileDrop(dropAreaId, fileInputId, previewId) {
+            const dropArea = document.getElementById(dropAreaId);
+            const fileInput = document.getElementById(fileInputId);
+            const previewContainer = document.getElementById(previewId);
+
+            if (!dropArea || !fileInput || !previewContainer) return;
+
+            // 드래그 이벤트 방지
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // 드래그 활성화 스타일
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+            });
+
+            // 파일 드롭 처리
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                handleFiles(files);
+            }
+            
+            // 파일 선택(클릭) 처리
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+
+            function handleFiles(files) {
+                previewContainer.innerHTML = ''; // 기존 미리보기 초기화
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const previewItem = document.createElement('div');
+                            previewItem.className = 'image-preview-item';
+                            previewItem.innerHTML = `<img src="${e.target.result}" alt="Image preview">`;
+                            previewContainer.appendChild(previewItem);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
+        }
+
+        setupFileDrop('problem-image-drop-area', 'problem-image', 'problem-image-preview');
+        setupFileDrop('solution-image-drop-area', 'solution-image', 'solution-image-preview');
+
+
+        // --- 폼 제출 로직 ---
+        const form = document.getElementById('analysis-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // 실제 서버 제출 방지
+
+            // 나중에 여기에 Gemini API 연동 로직을 추가합니다.
+            // 예: FormData를 생성하여 서버로 전송
+            const formData = new FormData(form);
+            
+            // 콘솔에 데이터 출력 (테스트용)
+            for (let [key, value] of formData.entries()) {
+                // 파일 객체인 경우 파일 이름만 출력
+                if (value instanceof File) {
+                    console.log(`${key}: ${value.name}`);
+                } else {
+                    console.log(`${key}: ${value}`);
+                }
+            }
+
+            alert('분석 요청이 접수되었습니다! (개발 중) \n콘솔에서 전송될 데이터를 확인해보세요.');
+            
+            // 분석 시작 시 버튼 비활성화 및 로딩 상태 표시 (UI/UX 개선)
+            const submitBtn = this.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '분석 중...';
+            
+            // 실제 API 호출 후 성공/실패에 따라 버튼 상태를 복원해야 합니다.
+            // setTimeout(() => {
+            //     submitBtn.disabled = false;
+            //     submitBtn.innerHTML = 'AI 오답 분석 시작 🚀';
+            // }, 3000); // 예시: 3초 후 복원
+        });
+    });
+    </script>
+
+</body>
+</html>
